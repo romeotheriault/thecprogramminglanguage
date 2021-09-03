@@ -175,34 +175,28 @@ int getop(char s[])
     return NUMBER;
 }
 
-#define BUFSIZE 100
-
-char buf[BUFSIZE];
-int bufp = 0;
+int bufp = -1;
 
 int getch(void)
 {
-    return (bufp > 0) ? buf[--bufp] : getchar();
+    if (bufp != -1)
+    {
+        int temp = bufp;
+        bufp = -1;
+        return temp;
+    } else {
+        return getchar();
+    }
 }
 
 void ungetch(int c)
 {
-    if(bufp >= BUFSIZE)
+    if(bufp >= 0)
         printf("ungetch: too many characters\n");
     else
-        buf[bufp++] = c;
+        bufp = c;
 }
 
-void ungets(char s[])
-{
-    int len = strlen(s)-1;
-    int i = 0;
-    while (i<len)
-    {
-        ungetch(s[i++]);
-    }
-    
-}
 
 #define MAXVAL 100
 
