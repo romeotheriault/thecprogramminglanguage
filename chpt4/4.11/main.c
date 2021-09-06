@@ -3,10 +3,11 @@
 #include <stdlib.h>
 #include "calc.h"
 /* reverse Polish calculator */
+/* Modify getop so that it doesn't need to use ungetch. Hint: use an internal static variable. */
 int main()
-{
+{ 
     int type;
-    double op1;
+    double op2;
     char s[MAXOP];
     while ((type = getop(s)) != EOF) {
         switch (type) {
@@ -20,49 +21,22 @@ int main()
             push(pop() * pop());
             break;
             case '%':
-            op1 = pop();
-            push((int)pop() % (int)op1);
+            op2 = pop();
+            push((int)pop() % (int)op2);
             break;
             case '-':
-            op1 = pop();
-            push(pop() - op1);
-            break;
-            case PRINT:
-            pst();
-            break;
-            case PRINTALL:
-            psall();
-            break;
-            case SWAP:
-            if(swap()==-1) {
-                printf("top two elements swapped\n");
-            } else {
-                printf("not two elements to swap\n");
-            }
-            break;
-            case CLEAR:
-            clear();
-            printf("stack cleared\n");
-            break;
-            case POW:
-            op1 = pop();
-            push(pow(pop(), op1));
-            break;
-            case SIN:
-            push(sin(pop()));
-            break;
-            case EXP:
-            push(exp(pop()));
+            op2 = pop();
+            push(pop() - op2);
             break;
             case '/':
-            op1 = pop();
-            if (op1 != 0.0)
-                push(pop() / op1);
+            op2 = pop();
+            if (op2 != 0.0)
+                push(pop() / op2);
             else
                 printf("error: zero divisor\n");
             break;
             case '\n':
-            printf("\t%.7g\n", pop());
+            printf("\t%.8g\n", pop());
             break;
             default:
             printf("error: unknown command %s\n", s);
