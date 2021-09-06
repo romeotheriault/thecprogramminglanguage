@@ -96,75 +96,96 @@ int main()
 
 #include <ctype.h>
 
-int lbp;
 int getop(char s[])
 {
     int i,c;
-    char *linebuf = NULL;
+    static char *linebuf = NULL;
     size_t linebuf_size = 0;
     int strsize = 0;
-    int lbp = 0;
+    static int lbp = -1;
+    memset(s, '\0', MAXOP);
 
-    if (lbp = -1) {
+    if (lbp == -1) {
         if (getline(&linebuf, &linebuf_size, stdin)==-1) {
             printf("Exiting");
             exit(EXIT_FAILURE);
+        } else {
+            lbp = 0;
+            strsize = strlen(linebuf);
         }
-    } else {
-       ; 
+    } else if (linebuf[lbp] == '\n') {
+        memset(linebuf, '\0', linebuf_size);
+        s[0] = '\0';
+        lbp = -1;
+        return '\n';
     }
 
-    strsize = strlen(linebuf);
     
-    while((s[0] = c = linebuf[lbp]) == ' ' || c =='\t')
+    while((linebuf[lbp]) == ' ' || c =='\t')
         lbp++;
 
-    s[1] = '\0';
+    //s[1] = '\0';
     c = linebuf[lbp];
     i = 0;
+    if (c == '\n') {
+        lbp = -1;
+        s[0] = '\0';
+        return '\n';
+    }
     if(isalpha(c)) {
-        while(isalpha(s[i++] = c=linebuf[lbp++]))
-            ;
+        while(isalpha(c=linebuf[lbp])) {
+            lbp++;
+            s[i++] = c;
+        }
+        if (linebuf[lbp] == '\n' && (strcmp(s, "clear") == 0 || strcmp(s, "print") == 0 || strcmp(s, "swap") == 0 || strcmp(s, "printall") == 0)) {
+            s[i] = linebuf[lbp];
+        }
         if (strcmp(s, "clear\n") == 0) {
-            memset(s, '\0', MAXOP);
+            memset(linebuf, '\0', linebuf_size);
+            s[0] = '\0';
+            lbp = -1;
             return CLEAR;
         } else if (strcmp(s, "swap\n") == 0)
         {
-            memset(s, '\0', MAXOP);
+            memset(linebuf, '\0', linebuf_size);
+            s[0] = '\0';
+            lbp = -1;
             return SWAP;
         } else if (strcmp(s, "print\n") == 0)
         {
-            memset(s, '\0', MAXOP);
+            memset(linebuf, '\0', linebuf_size);
+            s[0] = '\0';
+            lbp = -1;
             return PRINT;
         } else if (strcmp(s, "printall\n") == 0)
         {
-            memset(s, '\0', MAXOP);
+            memset(linebuf, '\0', linebuf_size);
+            s[0] = '\0';
+            lbp = -1;
             return PRINTALL;
-        } else if (strcmp(s, "sin\n") == 0)
+        } else if (strcmp(s, "sin") == 0)
         {
-            memset(s, '\0', MAXOP);
             return SIN;
-        } else if (strcmp(s, "exp\n") == 0)
+        } else if (strcmp(s, "exp") == 0)
         {
-            memset(s, '\0', MAXOP);
             return EXP;
-        } else if (strcmp(s, "pow\n") == 0)
+        } else if (strcmp(s, "pow") == 0)
         {
-            memset(s, '\0', MAXOP);
             return POW;
-        } else if (strcmp(s, "last\n") == 0)
+        } else if (strcmp(s, "last") == 0)
         {
-            memset(s, '\0', MAXOP);
             return LAST;
         }
 
     }
-    if(!isdigit(c) && !isalpha(c) && c!='.' && c!='-')
+    if(!isdigit(c) && !isalpha(c) && c!='.' && c!='-') {
+        lbp++;
         return c;
+    }
 
     if(c=='-')
-        if(isdigit(c=linebuf[lbp]) || c == '.')
-            s[++i]=c;
+        if(isdigit(c=linebuf[lbp++]) || c == '.')
+            s[i++]=c;
         else
         {
             //if(c!=EOF)
@@ -173,14 +194,16 @@ int getop(char s[])
         }
     
     if(isdigit(c))
-        while(isdigit(s[i++] = c=linebuf[lbp++]))
-            ;
+        while(isdigit(c=linebuf[lbp])) {
+            lbp++;
+            s[i++] = c;
+        }
 
     if(c=='.')
-        while(isdigit(s[i++] = c=linebuf[lbp++]))
+        while(isdigit(s[i++] = c=linebuf[++lbp]))
             ;
     
-    s[i] = '\0';
+    //s[i] = '\0';
     //if(c!=EOF)
      //   ungetch(c);
     return NUMBER;
