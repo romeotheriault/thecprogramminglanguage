@@ -20,14 +20,15 @@ void ungetch(int c)
         buf[bufp++] = c;
 }
 
-/* getint: get next integer from input into *pn */
-int getint(int *pn)
+/* getfloat: get next float from input into *pn */
+int getfloat(float *pn)
 {
     int c, sign;
+    double power;
     while (isspace(c = getch())) /* skip white space */
         ;
 
-    if (!isdigit(c) && c != EOF && c != '+' && c != '-') {
+    if (!isdigit(c) && c != EOF && c != '+' && c != '-' && c != '.') {
         ungetch(c);  /* it's not a number */
         return 0;
     }
@@ -36,11 +37,15 @@ int getint(int *pn)
         c = getch();
     for (*pn = 0; isdigit(c); c = getch())
         *pn = 10 * *pn + (c - '0');
-    if (*pn == 0 && c != '0') {
-        ungetch(c);
-        return 0;
+    if (c == '.') {
+        c = getch();
     }
-    *pn *= sign;
+    for (power = 1.0; isdigit(c); c = getch()) {
+        *pn = 10 * *pn + (c - '0');
+        power *= 10;
+        //printf("pn: %f - f: %f\n", *pn, power);
+    }
+    *pn = sign * *pn / power;
     if (c != EOF)
         ungetch(c);
     return c;
@@ -49,12 +54,12 @@ int getint(int *pn)
 int main(void)
 {
     int j;
-    int num;
-    if ((j = getint(&num)) == EOF) {
+    float num;
+    if ((j = getfloat(&num)) == EOF) {
         printf("End of file\n");
     } else if (j == 0) {
         printf("It's not a number\n");
     } else {
-        printf("%d\n", num);
+        printf("%f\n", num);
     }
 }
