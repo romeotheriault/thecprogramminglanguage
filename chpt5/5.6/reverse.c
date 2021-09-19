@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 // Non-pointer method
 void reverse (char *s)
@@ -23,7 +24,6 @@ void preverse (char *s)
         *(s+i) = *(s+len);
         *(s+len) = tmp;
     }
-    
 }
 
 int main (void)
