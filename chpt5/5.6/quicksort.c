@@ -8,7 +8,6 @@ user    0m23.375s
 sys     0m0.203s
 */
 
-
 void swap (int *a, int *b)
 {
     int t = *a;
@@ -16,11 +15,20 @@ void swap (int *a, int *b)
     *b = t;
 }
 
-int partition (int *a, int left, int right)
+void qsort (int *a, int left, int right)
 {
     int i, last;
 
-
+    if (left > right)
+        return;
+    swap(&a[left], &a[(right+left)/2]);
+    last = left;
+    for (i = left + 1; i < right; i++)
+        if (a[i] < a[left])
+            swap(&a[i], &a[++last]);
+    swap(&a[left], &a[last]);
+    qsort(a, left, last-1);
+    qsort(a, last+1, right);
 }
 
 void printarray (int *a, int len)
@@ -32,16 +40,17 @@ void printarray (int *a, int len)
 
 int main (void)
 {
+    /* 
     int a[] = {3,7,8,5,2,1,9,5,4};
     int len = sizeof(a)/sizeof(*a);
-    /*
+    printf("len of array: %d\n", len);
+    */
     const int MAXLEN = 200000;
     int a[MAXLEN];
-    ssize_t rc = getrandom(a, len, 0);
-    */
+    ssize_t rc = getrandom(a, MAXLEN, 0);
     printf("unsorted array: ");
-    printarray(a, len);
-    qsort(a, 0, len);
+    printarray(a, MAXLEN);
+    qsort(a, 0, MAXLEN);
     printf("sorted array: ");
-    printarray(a, len);
+    printarray(a, MAXLEN);
 }
