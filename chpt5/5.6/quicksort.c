@@ -19,11 +19,11 @@ void qsort (int *a, int left, int right)
 {
     int i, last;
 
-    if (left > right)
+    if (left >= right)
         return;
     swap(&a[left], &a[(right+left)/2]);
     last = left;
-    for (i = left + 1; i < right; i++)
+    for (i = left + 1; i <= right; i++)
         if (a[i] < a[left])
             swap(&a[i], &a[++last]);
     swap(&a[left], &a[last]);
@@ -40,17 +40,18 @@ void printarray (int *a, int len)
 
 int main (void)
 {
-    /* 
-    int a[] = {3,7,8,5,2,1,9,5,4};
+    //int a[] = {3,7,8,5,2,1,9,5,4};
+    int a[] = {9,8,7,6,5,4,3,2,1};
     int len = sizeof(a)/sizeof(*a);
     printf("len of array: %d\n", len);
-    */
+    /*
     const int MAXLEN = 200000;
     int a[MAXLEN];
     ssize_t rc = getrandom(a, MAXLEN, 0);
+    */
     printf("unsorted array: ");
-    printarray(a, MAXLEN);
-    qsort(a, 0, MAXLEN);
+    printarray(a, len);
+    qsort(a, 0, len);
     printf("sorted array: ");
-    printarray(a, MAXLEN);
+    printarray(a, len);
 }
