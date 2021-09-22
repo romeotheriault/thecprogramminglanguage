@@ -1,43 +1,41 @@
 #include <stdio.h>
 
-void swap (int *a, int *b)
+void swap(int *s, int *t)
 {
-	int tmp = *a;
-	*a = *b;
-	*b = tmp;
+	int tmp = *s;
+	*s = *t;
+	*t = tmp;
 }
 
-void qsort(int *a, int left, int right)
+void qsort(int *v, int left, int right)
 {
 	int last, i;
-
-	if (left >= right) // Return if less than two items.
+	if (left >= right)
 		return;
-	// Use the middle item as the partition, swap with first item.
-	swap(&a[left], &a[(right+left)/2]);
-	last = left;
-	// Loop thru all the items, moving any smaller than partition 
-	for (i = left+1; i <= right; i++) 
-		if (a[i] < a[left])
-			swap(&a[i], &a[++last]);
-	// Move back the partition item to it's final location.
-	swap(&a[left], &a[last]);
-	qsort(a, left, last-1);	    // call qsort for left subarray
-	qsort(a, last+1, right);	// call qsort for right subarray
+
+	swap(&v[left], &v[(left+right)/2]);
+	last = left;	
+
+	for (i = left+1; i <= right; i++)
+		if (v[i] < v[left])
+			swap(&v[i], &v[++last]);	
+
+	swap(&v[left], &v[last]);
+	qsort(v, left, last-1);
+	qsort(v, last+1, right);
 }
 
-void printarray(int *a, int len)
+void printarray(int *v, int len)
 {
 	for (int i = 0; i < len; i++)
-		printf("%d ", a[i]);
+		printf("%d ", v[i]);
 	printf("\n");
 }
 
-int main(void)
+int main (void)
 {
-	int a[] = {9,8,7,6,5,4,3,2,1};
-	int len = sizeof(a)/sizeof(*a);
-	printarray(a, len);
-	qsort(a, 0, len);
-	printarray(a, len);
+	int n[] = {9,8,7,6,5,4,3,2,1};
+	printarray(n, 9);
+	qsort(n, 0, 9);
+	printarray(n, 9);
 }
