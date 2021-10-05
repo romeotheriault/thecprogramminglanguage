@@ -18,11 +18,24 @@ int main(int argc, char *argv[])
     int nlines; /* number of input lines read */
     int numeric = 0; /* 1 if numeric sort */
     int reverse = 0;
+    int c;
 
-    if (argc > 1 && strcmp(argv[1], "-n") == 0)
-        numeric = 1;
-    if (argc > 2 && strcmp(argv[2], "-r") == 0)
-        reverse = 1;
+    while (--argc > 0 && (*++argv)[0] == '-')
+        while (c = *++argv[0])
+            switch (c) {
+            case 'n':
+                numeric = 1;
+                break;
+            case 'r':
+                reverse = 1;
+                break;
+            default:
+                printf("q: illegal option %c\n", c);
+                argc = 0;
+                break;
+                exit(EXIT_FAILURE);
+            }
+
     if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
         qqsort((void **) lineptr, 0, nlines-1,
             (int (*)(void*,void*))(numeric ? numcmp : strcmp), reverse);
@@ -67,18 +80,24 @@ void qqsort(void *v[], int left, int right, int (*comp)(void *, void *), int rev
     void swap(void *v[], int, int);
 
     if (reverse) {
-        if (left >= right) /* do nothing if the array contains */
+        if (right <= left) /* do nothing if the array contains */
             return;        /* fewer than two elements */
+        swap(v, right, (left+right)/2);
+        last = right;
+        for (i = right-1; i >= left; i--)
+            if ((*comp)(v[i], v[right]) < 0)
+                swap(v, --last, i);
+        swap(v, right, last);
     } else {
         if (left >= right) /* do nothing if the array contains */
             return;        /* fewer than two elements */
+        swap(v, left, (left + right)/2);
+        last = left;
+        for (i = left+1; i <= right; i++)
+            if ((*comp)(v[i], v[left]) < 0)
+                swap(v, ++last, i);
+        swap(v, left, last);
     }
-    swap(v, left, (left + right)/2);
-    last = left;
-    for (i = left+1; i <= right; i++)
-        if ((*comp)(v[i], v[left]) < 0)
-            swap(v, ++last, i);
-    swap(v, left, last);
     qqsort(v, left, last-1, comp, reverse);
     qqsort(v, last+1, right, comp, reverse);
 }
@@ -89,7 +108,7 @@ int readlines(char *lineptr[], int nlines)
     size_t buffsize = 1000;
     for (i = 0; getline(&lineptr[i], &buffsize, stdin) > 0 && i < MAXLINES; i++)
         ;
-    printf("total lines: %ld\n", i);
+    //printf("total lines: %ld\n", i);
     return(i);
 }
 
