@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #define MAXLINES 5000 /* max #lines to be sorted */
 char *lineptr[MAXLINES];  /* pointers to text lines */
@@ -18,6 +19,7 @@ int main(int argc, char *argv[])
     int nlines; /* number of input lines read */
     int numeric = 0; /* 1 if numeric sort */
     int reverse = 0;
+    int foldcase = 0;
     int c;
 
     while (--argc > 0 && (*++argv)[0] == '-')
@@ -25,6 +27,7 @@ int main(int argc, char *argv[])
             switch (c) {
             case 'n': numeric = 1; break;
             case 'r': reverse = 1; break;
+            case 'f': foldcase = 1; break;
             default:
                 printf("q: illegal option %c\n", c);
                 argc = 0;
@@ -72,7 +75,9 @@ void swap(void *v[], int i, int j)
 void qqsort(void *v[], int left, int right, int (*comp)(void *, void *), int reverse)
 {
     int i, last;
+    int j, k;
     void swap(void *v[], int, int);
+    char *x = (char *)v;
 
     if (reverse) {
         if (right <= left) /* do nothing if the array contains */
@@ -80,7 +85,9 @@ void qqsort(void *v[], int left, int right, int (*comp)(void *, void *), int rev
         swap(v, right, (left+right)/2);
         last = right;
         for (i = right-1; i >= left; i--)
-            if ((*comp)(v[i], v[right]) < 0)
+            j = (isalpha(x[i]) && isupper(x[i])) ? tolower(x[i]) : x[i];     
+            k = (isalpha(x[right]) && isupper(x[right])) ? tolower(x[right]) : x[right];     
+            if ((*comp)((char *)&j, (char *)&k) < 0)
                 swap(v, --last, i);
         swap(v, right, last);
     } else {
@@ -89,7 +96,9 @@ void qqsort(void *v[], int left, int right, int (*comp)(void *, void *), int rev
         swap(v, left, (left + right)/2);
         last = left;
         for (i = left+1; i <= right; i++)
-            if ((*comp)(v[i], v[left]) < 0)
+            j = (isalpha(x[i]) && isupper(x[i])) ? tolower(x[i]) : x[i];     
+            k = (isalpha(x[left]) && isupper(x[left])) ? tolower(x[left]) : x[left];     
+            if ((*comp)((char *)&j, (char *)&k) < 0)
                 swap(v, ++last, i);
         swap(v, left, last);
     }
