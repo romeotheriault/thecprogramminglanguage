@@ -72,7 +72,6 @@ void swap(void *v[], int i, int j)
 void qqsort(void *v[], int left, int right, int (*comp)(void *, void *), int reverse)
 {
     int i, last;
-    void swap(void *v[], int, int);
 
     if (reverse) {
         if (right <= left) /* do nothing if the array contains */

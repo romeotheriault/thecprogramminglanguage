@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -36,7 +37,7 @@ int main(int argc, char *argv[])
             }
 
     if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
-        qqsort((void **) lineptr, 0, nlines-1, (int (*)(void*,void*))(numeric ? numcmp : strcmp), reverse);
+        qqsort((void **) lineptr, 0, nlines-1, (int (*)(void*,void*))(numeric ? numcmp : strcasecmp), reverse);
         writelines(lineptr, nlines);
         return 0;
     } else {
@@ -62,7 +63,7 @@ int numcmp(const char *s1, const char *s2)
         return 0;
 }
 
-void swap(void *v[], int i, int j)
+void swap(void **v, int i, int j)
 {
     void *temp;
 
@@ -72,12 +73,9 @@ void swap(void *v[], int i, int j)
 }
 
 /* qsort: sort v[left]...v[right] into increasing order */
-void qqsort(void *v[], int left, int right, int (*comp)(void *, void *), int reverse)
+void qqsort(void **v, int left, int right, int (*comp)(void *, void *), int reverse)
 {
     int i, last;
-    int j, k;
-    void swap(void *v[], int, int);
-    char *x = (char *)v;
 
     if (reverse) {
         if (right <= left) /* do nothing if the array contains */
@@ -85,9 +83,7 @@ void qqsort(void *v[], int left, int right, int (*comp)(void *, void *), int rev
         swap(v, right, (left+right)/2);
         last = right;
         for (i = right-1; i >= left; i--)
-            j = (isalpha(x[i]) && isupper(x[i])) ? tolower(x[i]) : x[i];     
-            k = (isalpha(x[right]) && isupper(x[right])) ? tolower(x[right]) : x[right];     
-            if ((*comp)((char *)&j, (char *)&k) < 0)
+            if ((*comp)(v[i], v[right]) < 0)
                 swap(v, --last, i);
         swap(v, right, last);
     } else {
@@ -96,9 +92,7 @@ void qqsort(void *v[], int left, int right, int (*comp)(void *, void *), int rev
         swap(v, left, (left + right)/2);
         last = left;
         for (i = left+1; i <= right; i++)
-            j = (isalpha(x[i]) && isupper(x[i])) ? tolower(x[i]) : x[i];     
-            k = (isalpha(x[left]) && isupper(x[left])) ? tolower(x[left]) : x[left];     
-            if ((*comp)((char *)&j, (char *)&k) < 0)
+            if ((*comp)(v[i], v[left]) < 0)
                 swap(v, ++last, i);
         swap(v, left, last);
     }
@@ -112,7 +106,6 @@ int readlines(char *lineptr[], int nlines)
     size_t buffsize = 1000;
     for (i = 0; getline(&lineptr[i], &buffsize, stdin) > 0 && i < MAXLINES; i++)
         ;
-    //printf("total lines: %ld\n", i);
     return(i);
 }
 
