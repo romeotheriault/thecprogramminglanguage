@@ -4,10 +4,11 @@
 #include <stdlib.h>
 
 #define MAXWORD 100
-#define MAXLINE 1000
+#define MAXLINE 2000
 struct tnode *addtree(struct tnode *, char*);
 void treeprint(struct tnode *);
 int getword(char *, int);
+int linenum = 0;
 
 /* getword: get next word or character from input */
 int getword(char *word, int lim)
@@ -26,7 +27,10 @@ int getword(char *word, int lim)
     }
     for ( ; --lim > 0; w++)
         if (!isalnum(*w = getch())) {
-            ungetch(*w);
+            if (*w == '\n')
+                linenum++;
+            else
+                ungetch(*w);
             break;
         }
     *w = '\0';
@@ -35,7 +39,7 @@ int getword(char *word, int lim)
 
 struct tnode {
     char *word;
-    int count;
+    char *word_lines;
     struct tnode *left;
     struct tnode *right;
 };
@@ -53,12 +57,17 @@ struct tnode *addtree(struct tnode *t, char *word)
     {
         t = talloc();
         t->word = strdup(word);
-        t->count = 1;
+        t->word_lines = (char *) malloc(sizeof(int) * MAXLINE);
+        sprintf(t->word_lines, "%d", linenum);
+        //t->word_lines = linenum+'0';
         t->right = NULL;
         t->left = NULL;
     } 
-    else if (cond = strcmp(word, t->word) == 0)
-        t->count++;
+    else if (cond = strcmp(word, t->word) == 0) {
+        char p[30];
+        sprintf(p, ",%d", linenum);
+        strcat(t->word_lines, p);
+    }
     else if (cond < 0)
         t->left = addtree(t->left, word);
     else
@@ -70,7 +79,7 @@ void treeprint(struct tnode *t)
 {
     if (t!=NULL) {
         treeprint(t->left);
-        printf("%d: %s\n", t->count, t->word);
+        printf("%s: %s\n", t->word, t->word_lines);
         treeprint(t->right);
     }
 }
@@ -82,10 +91,12 @@ int main()
     char word[MAXWORD];
 
     root = NULL;
-    while (getword(word, MAXWORD) != EOF)
+    while (getword(word, MAXWORD) != EOF) {
+        //printf("word: %s - linenum: %d\n", word, linenum);
         if (isalpha(word[0])) {
             root = addtree(root, word);
         }
+    }
     treeprint(root);
     return 0;
 }
