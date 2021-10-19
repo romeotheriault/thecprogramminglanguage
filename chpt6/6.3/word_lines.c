@@ -10,6 +10,19 @@ void treeprint(struct tnode *);
 int getword(char *, int);
 int linenum = 0;
 
+const char *ignore_word_list[] = {"and", "by", "a", "that", "man", "of", "is", "in", "must", "the"};
+
+
+int in_ignore_list(char *word)
+{
+    int length = (sizeof(ignore_word_list) / sizeof(char *));
+    for (int i = 0; i < length; i++) {
+        if (!strcmp(word, ignore_word_list[i]))
+            return 1;
+    }
+    return 0;
+}
+
 /* getword: get next word or character from input */
 int getword(char *word, int lim)
 {
@@ -93,7 +106,7 @@ int main()
     root = NULL;
     while (getword(word, MAXWORD) != EOF) {
         //printf("word: %s - linenum: %d\n", word, linenum);
-        if (isalpha(word[0])) {
+        if (isalpha(word[0]) && !in_ignore_list(word)) {
             root = addtree(root, word);
         }
     }

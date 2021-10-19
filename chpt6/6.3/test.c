@@ -29,9 +29,8 @@ int main()
         printf("not alpha\n");
     */
 
-    int i = 10;
-    char *t;
-    t = (char *) malloc(sizeof(int)* 1024);
-    t = strdup((const char *)(i+'0'));
-
+    char *t[] = {"one", "two", "three"};
+    printf("%s\n", t[0]);
+    printf("%s\n", t[1]);
+    printf("%s\n", t[2]);
 }
