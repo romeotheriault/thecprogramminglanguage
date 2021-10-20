@@ -16,36 +16,77 @@
 */
 
 
+#define MAX_SIDS 100000
 #define MAX_USERNAME_LEN 100
 struct tnode *addtree(struct tnode *, char*);
 void treeprint(struct tnode *);
-//int getword(char *, int);
 
-/* getword: get next word or character from input */
-/*
-int getword(char *user, int lim)
+void get_sid(char *line, int sids[], int max_sids)
 {
-    int c, getch(void);
-    void ungetch(int);
-    char *w = user;
-
-    while (isspace(c = getch()))
-        ;
-    if (c != EOF)
-        *w++ = c;
-    if (!isalpha(c)) {
-        *w = '\0';
-        return c;
+    // Pulling the sid out of a line like this:
+    // [02] Tue 19Jan21 00:18:26 - (108422) Connected to 38.96.131.2 (local address 10.1.240.194, port 21)
+    static int sid_count = 0;
+    char *connected = ") Connected";
+    char *t;
+    char sid[7];
+    if ((t = strstr(line, connected)) != NULL) {
+        sid[6] = '\0';
+        for (int i = 5; i >= 0; i--)
+            sid[i] = *(--t);
+       
+       if (sid_count < MAX_SIDS) {
+           sids[sid_count] = atoi(sid);
+           //printf("%d\n", sids[sid_count]);
+           sid_count++;
+       } else {
+           printf("Too many sids.\n");
+           exit(1);
+       }
     }
-    for ( ; --lim > 0; w++)
-        if (!isalnum(*w = getch())) {
-            ungetch(*w);
-            break;
-        }
-    *w = '\0';
-    return user[0];
 }
-*/
+
+int get_username(char *p, char *user, int sids[], int sids_len)
+{
+    // Pulling the username and sid out of a line like this:
+    // [02] Tue 19Jan21 00:18:26 - (108422) User "ibitest" logged in
+    // Reverse until second double quote found, keeping count.
+    int double_quote_count = 0;
+    int username_length = 0;
+    char *t = user;
+    do
+    {
+        if (*p-- == '"')
+            double_quote_count++;
+        username_length++;
+    } while (double_quote_count < 2);
+
+    // Move forward one character
+    p++;
+    username_length--;
+
+    while (username_length-- >= 0)
+        *user++ = *p++;
+
+    *user = '\0';
+
+    // Now lets find the sid.
+    char sid[7];
+    int isid;
+    while (*p-- != '(')
+        ;
+    p++; p++;
+    for (int i = 0; i < 6; i++)
+        sid[i] = *p++;
+    isid = atoi(sid);
+    //printf("sid: %s - isid: %d\n", sid, isid);
+    for (int i = 0; i <= sids_len; i++) {
+        if (isid == sids[i]) {
+            //printf("found sid: %d for user: %s\n", isid, t);
+            return 1;
+        }
+    } 
+    return 0;
+}
 
 struct tnode {
     char *user;
@@ -97,7 +138,7 @@ int main()
     size_t len = 0;
     ssize_t read;
 
-    fp = fopen("/tmp/ftplog", "r");
+    fp = fopen("./ftplog", "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
 
@@ -106,19 +147,19 @@ int main()
 
     root = NULL;
 
+    char *p;
+    char *logged_in_string = "\" logged in";
+    char *port21 = "port 21";
+    int sids[MAX_SIDS] = { };
     while ((read = getline(&line, &len, fp)) != -1) {
-        //printf("Retrieved line of length %zu:\n", read);
-        //printf("%s", line);
-        if (isalpha(user[0])) {
-            root = addtree(root, user);
+        if ((p = strstr(line, logged_in_string)) != NULL) {
+            if (get_username(p, user, sids, MAX_SIDS))
+                root = addtree(root, user);
+        } else if (strstr(line, port21) != NULL) {
+            //printf("%s", line);
+            get_sid(line, sids, MAX_SIDS);
         }
     }
-    /*
-    while (getword(user, MAX_USERNAME_LEN) != EOF)
-        if (isalpha(user[0])) {
-            root = addtree(root, user);
-        }
-    */
     treeprint(root);
     fclose(fp);
     if (line)
