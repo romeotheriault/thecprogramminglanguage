@@ -20,12 +20,13 @@
 #define MAX_USERNAME_LEN 100
 struct tnode *addtree(struct tnode *, char*);
 void treeprint(struct tnode *);
+int sid_count = 0;
 
 void get_sid(char *line, int sids[], int max_sids)
 {
     // Pulling the sid out of a line like this:
     // [02] Tue 19Jan21 00:18:26 - (108422) Connected to 38.96.131.2 (local address 10.1.240.194, port 21)
-    static int sid_count = 0;
+    //static int sid_count = 0;
     char *connected = ") Connected";
     char *t;
     char sid[7];
@@ -45,7 +46,7 @@ void get_sid(char *line, int sids[], int max_sids)
     }
 }
 
-int get_username(char *p, char *user, int sids[], int sids_len)
+int get_username(char *p, char *user, int sids[])
 {
     // Pulling the username and sid out of a line like this:
     // [02] Tue 19Jan21 00:18:26 - (108422) User "ibitest" logged in
@@ -79,7 +80,7 @@ int get_username(char *p, char *user, int sids[], int sids_len)
         sid[i] = *p++;
     isid = atoi(sid);
     //printf("sid: %s - isid: %d\n", sid, isid);
-    for (int i = 0; i <= sids_len; i++) {
+    for (int i = sid_count-1; i >= 0; i--) {
         if (isid == sids[i]) {
             //printf("found sid: %d for user: %s\n", isid, t);
             return 1;
@@ -153,7 +154,7 @@ int main()
     int sids[MAX_SIDS] = { };
     while ((read = getline(&line, &len, fp)) != -1) {
         if ((p = strstr(line, logged_in_string)) != NULL) {
-            if (get_username(p, user, sids, MAX_SIDS))
+            if (get_username(p, user, sids))
                 root = addtree(root, user);
         } else if (strstr(line, port21) != NULL) {
             //printf("%s", line);
