@@ -36,7 +36,7 @@ void get_sid(char *line, int sids[], int max_sids)
         while (*t != ')')
             sid[i++] = *t++;
 
-        printf("sid: %s\n", sid);
+        //printf("sid: %s\n", sid);
        
        if (sid_count < MAX_SIDS) {
            sids[sid_count] = atoi(sid);
