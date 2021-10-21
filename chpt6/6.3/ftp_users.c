@@ -137,14 +137,17 @@ void treeprint(struct tnode *t)
 }
 
 /* ftp user frequency count */
-int main()
+int main(int argc, char *argv[])
 {
     FILE * fp;
     char * line = NULL;
     size_t len = 0;
     ssize_t read;
 
-    fp = fopen("./ftplog", "r");
+    if (argc != 2)
+        printf("usage: %s <filename>\n", argv[0]);
+
+    fp = fopen(argv[1], "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
 
