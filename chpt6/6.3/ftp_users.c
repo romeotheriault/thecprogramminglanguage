@@ -27,13 +27,16 @@ void get_sid(char *line, int sids[], int max_sids)
     // Pulling the sid out of a line like this:
     // [02] Tue 19Jan21 00:18:26 - (108422) Connected to 38.96.131.2 (local address 10.1.240.194, port 21)
     //static int sid_count = 0;
-    char *connected = ") Connected";
+    char *connected = " - (";
     char *t;
-    char sid[7];
+    char sid[10] = {'\0'};
     if ((t = strstr(line, connected)) != NULL) {
-        sid[6] = '\0';
-        for (int i = 5; i >= 0; i--)
-            sid[i] = *(--t);
+        t++; t++; t++; t++;
+        int i = 0;
+        while (*t != ')')
+            sid[i++] = *t++;
+
+        printf("sid: %s\n", sid);
        
        if (sid_count < MAX_SIDS) {
            sids[sid_count] = atoi(sid);
@@ -71,13 +74,14 @@ int get_username(char *p, char *user, int sids[])
     *user = '\0';
 
     // Now lets find the sid.
-    char sid[7];
+    char sid[10] = {'\0'};
     int isid;
     while (*p-- != '(')
         ;
     p++; p++;
-    for (int i = 0; i < 6; i++)
-        sid[i] = *p++;
+    int i = 0;
+    while (*p != ')')
+        sid[i++] = *p++;
     isid = atoi(sid);
     //printf("sid: %s - isid: %d\n", sid, isid);
     for (int i = sid_count-1; i >= 0; i--) {
