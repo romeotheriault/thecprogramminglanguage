@@ -84,8 +84,9 @@ int get_username(char *p, char *user, int sids[])
         sid[i++] = *p++;
     isid = atoi(sid);
     //printf("sid: %s - isid: %d\n", sid, isid);
-    for (int i = sid_count-1; i >= 0; i--) {
-        if (isid == sids[i]) {
+    int j = sid_count-1;
+    for ( ; j >= 0 && sid_count-j < 100; j--) {
+        if (isid == sids[j]) {
             //printf("found sid: %d for user: %s\n", isid, t);
             return 1;
         }
