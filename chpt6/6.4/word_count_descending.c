@@ -16,10 +16,17 @@ int getword(char *, int);
 int tnode_count = 0;
 int tnode_array_index = 0;
 
+struct tnode {
+    char *word;
+    int count;
+    struct tnode *left;
+    struct tnode *right;
+};
+
 /* swap: interchange v[i] and v[j] */
-void swap(char *v[], int i, int j)
+void swap(struct tnode **v, int i, int j)
 {
-  char *temp;
+  struct tnode *temp;
 
   temp = v[i];
   v[i] = v[j];
@@ -27,7 +34,7 @@ void swap(char *v[], int i, int j)
 }
 
 /* qsort: sort v[left]...v[right] into descending order */
-void qqsort(void *v[], int left, int right)
+void qqsort(struct tnode **v, int left, int right)
 {
     int i, last;
 
@@ -36,7 +43,7 @@ void qqsort(void *v[], int left, int right)
     swap(v, right, (left+right)/2);
     last = right;
     for (i = right-1; i >= left; i--)
-        if ((v[i], v[right]) < 0)
+        if (v[i]->count < v[right]->count)
             swap(v, --last, i);
     swap(v, right, last);
     qqsort(v, left, last-1);
@@ -67,12 +74,6 @@ int getword(char *word, int lim)
     return word[0];
 }
 
-struct tnode {
-    char *word;
-    int count;
-    struct tnode *left;
-    struct tnode *right;
-};
 
 /* talloc: make a node */
 struct tnode *talloc(void)
@@ -137,12 +138,13 @@ int main()
     add_node_to_array(root, nodes);
     printf("tnode_array_index: %d\n", tnode_array_index);
     printf("tnode count: %d\n", tnode_count);
+    // Sort the tnodes based on count.
+    qqsort(nodes, 1, tnode_count);
+    // Print them out.
     for (int i = 1; i <= tnode_array_index; i++)
     {
         printf("%d: %s\n", nodes[i]->count, nodes[i]->word);
     }
-    
-    //treeprint(root);
     return 0;
 }
 
